@@ -33,8 +33,8 @@ import {
   ProductDetails_product,
   ProductDetails_product_variants
 } from "@saleor/products/types/ProductDetails";
-import { ProductImageCreateVariables } from "@saleor/products/types/ProductImageCreate";
-import { ProductImageReorderVariables } from "@saleor/products/types/ProductImageReorder";
+import { ProductMediaCreateVariables } from "@saleor/products/types/ProductMediaCreate";
+import { ProductMediaReorderVariables } from "@saleor/products/types/ProductMediaReorder";
 import {
   ProductUpdate,
   ProductUpdateVariables
@@ -56,6 +56,7 @@ import {
 } from "@saleor/products/types/VariantCreate";
 import { mapFormsetStockToStockInput } from "@saleor/products/utils/data";
 import { getAvailabilityVariables } from "@saleor/products/utils/handlers";
+import { getParsedDataForJsonStringField } from "@saleor/translations/utils";
 import { ReorderEvent } from "@saleor/types";
 import { move } from "@saleor/utils/lists";
 import { diff } from "fast-array-diff";
@@ -185,7 +186,7 @@ export function createUpdateHandler(
         category: data.category,
         chargeTaxes: data.chargeTaxes,
         collections: data.collections,
-        description: JSON.stringify(data.description),
+        description: getParsedDataForJsonStringField(data.description),
         name: data.name,
         rating: data.rating,
         seo: {
@@ -270,7 +271,7 @@ export function createUpdateHandler(
 
 export function createImageUploadHandler(
   id: string,
-  createProductImage: (variables: ProductImageCreateVariables) => void
+  createProductImage: (variables: ProductMediaCreateVariables) => void
 ) {
   return (file: File) =>
     createProductImage({
@@ -282,13 +283,13 @@ export function createImageUploadHandler(
 
 export function createImageReorderHandler(
   product: ProductDetails_product,
-  reorderProductImages: (variables: ProductImageReorderVariables) => void
+  reorderProductImages: (variables: ProductMediaReorderVariables) => void
 ) {
   return ({ newIndex, oldIndex }: ReorderEvent) => {
-    let ids = product.images.map(image => image.id);
+    let ids = product.media.map(image => image.id);
     ids = arrayMove(ids, oldIndex, newIndex);
     reorderProductImages({
-      imagesIds: ids,
+      mediaIds: ids,
       productId: product.id
     });
   };

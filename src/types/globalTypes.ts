@@ -562,11 +562,17 @@ export enum OrderDirection {
   DESC = "DESC",
 }
 
+export enum OrderDiscountType {
+  MANUAL = "MANUAL",
+  VOUCHER = "VOUCHER",
+}
+
 export enum OrderErrorCode {
   BILLING_ADDRESS_NOT_SET = "BILLING_ADDRESS_NOT_SET",
   CANNOT_CANCEL_FULFILLMENT = "CANNOT_CANCEL_FULFILLMENT",
   CANNOT_CANCEL_ORDER = "CANNOT_CANCEL_ORDER",
   CANNOT_DELETE = "CANNOT_DELETE",
+  CANNOT_DISCOUNT = "CANNOT_DISCOUNT",
   CANNOT_REFUND = "CANNOT_REFUND",
   CAPTURE_INACTIVE_PAYMENT = "CAPTURE_INACTIVE_PAYMENT",
   CHANNEL_INACTIVE = "CHANNEL_INACTIVE",
@@ -625,7 +631,13 @@ export enum OrderEventsEnum {
   INVOICE_SENT = "INVOICE_SENT",
   INVOICE_UPDATED = "INVOICE_UPDATED",
   NOTE_ADDED = "NOTE_ADDED",
+  ORDER_DISCOUNT_ADDED = "ORDER_DISCOUNT_ADDED",
+  ORDER_DISCOUNT_AUTOMATICALLY_UPDATED = "ORDER_DISCOUNT_AUTOMATICALLY_UPDATED",
+  ORDER_DISCOUNT_DELETED = "ORDER_DISCOUNT_DELETED",
+  ORDER_DISCOUNT_UPDATED = "ORDER_DISCOUNT_UPDATED",
   ORDER_FULLY_PAID = "ORDER_FULLY_PAID",
+  ORDER_LINE_DISCOUNT_REMOVED = "ORDER_LINE_DISCOUNT_REMOVED",
+  ORDER_LINE_DISCOUNT_UPDATED = "ORDER_LINE_DISCOUNT_UPDATED",
   ORDER_MARKED_AS_PAID = "ORDER_MARKED_AS_PAID",
   ORDER_REPLACEMENT_CREATED = "ORDER_REPLACEMENT_CREATED",
   OTHER = "OTHER",
@@ -757,6 +769,11 @@ export enum PluginSortField {
   NAME = "NAME",
 }
 
+export enum PostalCodeRuleInclusionTypeEnum {
+  EXCLUDE = "EXCLUDE",
+  INCLUDE = "INCLUDE",
+}
+
 export enum ProductAttributeType {
   PRODUCT = "PRODUCT",
   VARIANT = "VARIANT",
@@ -778,6 +795,7 @@ export enum ProductErrorCode {
   PRODUCT_WITHOUT_CATEGORY = "PRODUCT_WITHOUT_CATEGORY",
   REQUIRED = "REQUIRED",
   UNIQUE = "UNIQUE",
+  UNSUPPORTED_MEDIA_PROVIDER = "UNSUPPORTED_MEDIA_PROVIDER",
   VARIANT_NO_DIGITAL_CONTENT = "VARIANT_NO_DIGITAL_CONTENT",
 }
 
@@ -796,6 +814,11 @@ export enum ProductFieldEnum {
   VISIBLE = "VISIBLE",
 }
 
+export enum ProductMediaType {
+  IMAGE = "IMAGE",
+  VIDEO = "VIDEO",
+}
+
 export enum ProductOrderField {
   COLLECTION = "COLLECTION",
   DATE = "DATE",
@@ -804,6 +827,7 @@ export enum ProductOrderField {
   PRICE = "PRICE",
   PUBLICATION_DATE = "PUBLICATION_DATE",
   PUBLISHED = "PUBLISHED",
+  RANK = "RANK",
   RATING = "RATING",
   TYPE = "TYPE",
 }
@@ -967,9 +991,9 @@ export enum WebhookErrorCode {
 export enum WebhookEventTypeEnum {
   ANY_EVENTS = "ANY_EVENTS",
   CHECKOUT_CREATED = "CHECKOUT_CREATED",
-  CHECKOUT_QUANTITY_CHANGED = "CHECKOUT_QUANTITY_CHANGED",
   CHECKOUT_UPDATED = "CHECKOUT_UPDATED",
   CUSTOMER_CREATED = "CUSTOMER_CREATED",
+  CUSTOMER_UPDATED = "CUSTOMER_UPDATED",
   FULFILLMENT_CREATED = "FULFILLMENT_CREATED",
   INVOICE_DELETED = "INVOICE_DELETED",
   INVOICE_REQUESTED = "INVOICE_REQUESTED",
@@ -980,8 +1004,15 @@ export enum WebhookEventTypeEnum {
   ORDER_FULFILLED = "ORDER_FULFILLED",
   ORDER_FULLY_PAID = "ORDER_FULLY_PAID",
   ORDER_UPDATED = "ORDER_UPDATED",
+  PAGE_CREATED = "PAGE_CREATED",
+  PAGE_DELETED = "PAGE_DELETED",
+  PAGE_UPDATED = "PAGE_UPDATED",
   PRODUCT_CREATED = "PRODUCT_CREATED",
+  PRODUCT_DELETED = "PRODUCT_DELETED",
   PRODUCT_UPDATED = "PRODUCT_UPDATED",
+  PRODUCT_VARIANT_CREATED = "PRODUCT_VARIANT_CREATED",
+  PRODUCT_VARIANT_DELETED = "PRODUCT_VARIANT_DELETED",
+  PRODUCT_VARIANT_UPDATED = "PRODUCT_VARIANT_UPDATED",
 }
 
 export enum WeightUnitsEnum {
@@ -1327,6 +1358,12 @@ export interface OrderAddNoteInput {
   message: string;
 }
 
+export interface OrderDiscountCommonInput {
+  valueType: DiscountValueTypeEnum;
+  value: any;
+  reason?: string | null;
+}
+
 export interface OrderDraftFilterInput {
   customer?: string | null;
   created?: DateRangeInput | null;
@@ -1541,10 +1578,10 @@ export interface ProductChannelListingUpdateInput {
 }
 
 export interface ProductCreateInput {
-  attributes?: (AttributeValueInput | null)[] | null;
+  attributes?: AttributeValueInput[] | null;
   category?: string | null;
   chargeTaxes?: boolean | null;
-  collections?: (string | null)[] | null;
+  collections?: string[] | null;
   description?: any | null;
   name?: string | null;
   slug?: string | null;
@@ -1573,10 +1610,10 @@ export interface ProductFilterInput {
 }
 
 export interface ProductInput {
-  attributes?: (AttributeValueInput | null)[] | null;
+  attributes?: AttributeValueInput[] | null;
   category?: string | null;
   chargeTaxes?: boolean | null;
-  collections?: (string | null)[] | null;
+  collections?: string[] | null;
   description?: any | null;
   name?: string | null;
   slug?: string | null;
@@ -1715,6 +1752,11 @@ export interface ShippingMethodChannelListingInput {
   removeChannels?: string[] | null;
 }
 
+export interface ShippingPostalCodeRulesCreateInputRange {
+  start: string;
+  end?: string | null;
+}
+
 export interface ShippingPriceExcludeProductsInput {
   products: (string | null)[];
 }
@@ -1727,15 +1769,9 @@ export interface ShippingPriceInput {
   minimumDeliveryDays?: number | null;
   type?: ShippingMethodTypeEnum | null;
   shippingZone?: string | null;
-}
-
-export interface ShippingZipCodeRulesCreateInput {
-  zipCodeRules: (ShippingZipCodeRulesCreateInputRange | null)[];
-}
-
-export interface ShippingZipCodeRulesCreateInputRange {
-  start: string;
-  end?: string | null;
+  addPostalCodeRules?: ShippingPostalCodeRulesCreateInputRange[] | null;
+  deletePostalCodeRules?: string[] | null;
+  inclusionType?: PostalCodeRuleInclusionTypeEnum | null;
 }
 
 export interface ShippingZoneCreateInput {
